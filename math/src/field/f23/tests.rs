@@ -3,7 +3,7 @@
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 
-use super::{BaseElement, DeserializationError, FieldElement, Serializable, StarkField, M};
+use super::{BaseElement, FieldElement, Serializable, StarkField, M};
 use crate::field::{CubeExtension, ExtensionOf, QuadExtension};
 use core::convert::TryFrom;
 use num_bigint::BigUint;
@@ -234,24 +234,18 @@ fn quad_conjugate() {
     let m = BaseElement::MODULUS as u32;
 
     let a = <QuadExtension<BaseElement>>::new(BaseElement::new(m - 1), BaseElement::new(3));
-    let expected = <QuadExtension<BaseElement>>::new(
-        BaseElement::new(2),
-        BaseElement::new(8380414),
-    );
+    let expected =
+        <QuadExtension<BaseElement>>::new(BaseElement::new(2), BaseElement::new(8380414));
     assert_eq!(expected, a.conjugate());
 
     let a = <QuadExtension<BaseElement>>::new(BaseElement::new(m - 3), BaseElement::new(m - 2));
-    let expected = <QuadExtension<BaseElement>>::new(
-        BaseElement::new(8380412),
-        BaseElement::new(2),
-    );
+    let expected =
+        <QuadExtension<BaseElement>>::new(BaseElement::new(8380412), BaseElement::new(2));
     assert_eq!(expected, a.conjugate());
 
     let a = <QuadExtension<BaseElement>>::new(BaseElement::new(4), BaseElement::new(7));
-    let expected = <QuadExtension<BaseElement>>::new(
-        BaseElement::new(11),
-        BaseElement::new(8380410),
-    );
+    let expected =
+        <QuadExtension<BaseElement>>::new(BaseElement::new(11), BaseElement::new(8380410));
     assert_eq!(expected, a.conjugate());
 }
 
