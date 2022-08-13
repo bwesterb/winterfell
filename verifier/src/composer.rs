@@ -93,14 +93,14 @@ impl<E: FieldElement> DeepComposer<E> {
                 let t1_num = (value - ood_main_trace_states[0][i]) * self.cc.trace[i].0;
                 let t1_den = x - self.z[0];
                 num = num * t1_den + den * t1_num;
-                den = den * t1_den;
+                den *= t1_den;
 
                 // compute T''_i(x) = (T_i(x) - T_i(z * g)) / (x - z * g), multiply it by a
                 // composition coefficient, and add the result to T(x)
                 let t2_num = (value - ood_main_trace_states[1][i]) * self.cc.trace[i].1;
                 let t2_den = x - self.z[1];
                 num = num * t2_den + den * t2_num;
-                den = den * t2_den;
+                den *= t2_den;
 
                 // when extension field is enabled compute
                 // T'''_i(x) = (T_i(x) - T_i(z_conjugate)) / (x - z_conjugate)
@@ -108,7 +108,7 @@ impl<E: FieldElement> DeepComposer<E> {
                     let t3_num = (value - trace_at_z1_conjugates[i]) * self.cc.trace[i].2;
                     let t3_den = x - z_conjugate;
                     num = num * t3_den + den * t3_num;
-                    den = den * t3_den;
+                    den *= t3_den;
                 }
             }
             result_num.push(num);
@@ -139,7 +139,7 @@ impl<E: FieldElement> DeepComposer<E> {
                         (value - ood_aux_trace_states[0][i]) * self.cc.trace[cc_offset + i].0;
                     let t1_den = x - self.z[0];
                     num = num * t1_den + den * t1_num;
-                    den = den * t1_den;
+                    den *= t1_den;
 
                     // compute T''_i(x) = (T_i(x) - T_i(z * g)) / (x - z * g), multiply it by a
                     // composition coefficient, and add the result to T(x)
@@ -147,10 +147,10 @@ impl<E: FieldElement> DeepComposer<E> {
                         (value - ood_aux_trace_states[1][i]) * self.cc.trace[cc_offset + i].1;
                     let t2_den = x - self.z[1];
                     num = num * t2_den + den * t2_num;
-                    den = den * t2_den;
+                    den *= t2_den;
                 }
                 result_num[j] = result_num[j] * den + result_den[j] * num;
-                result_den[j] = result_den[j] * den;
+                result_den[j] *= den;
             }
         }
 
@@ -199,7 +199,7 @@ impl<E: FieldElement> DeepComposer<E> {
                 let h_i_num = (evaluation - ood_evaluations[i]) * self.cc.constraints[i];
                 let h_i_den = x - z_m;
                 composition_num = composition_num * h_i_den + composition_den * h_i_num;
-                composition_den = composition_den * h_i_den;
+                composition_den *= h_i_den;
             }
             result_num.push(composition_num);
             result_den.push(composition_den);
