@@ -272,7 +272,7 @@ impl TraceLayout {
 impl Serializable for TraceLayout {
     /// Serializes `self` and writes the resulting bytes into the `target`.
     fn write_into<W: ByteWriter>(&self, target: &mut W) {
-        target.write_u8(self.main_segment_width as u8);
+        target.write_u16(self.main_segment_width as u16);
         for &w in self.aux_segment_widths.iter() {
             debug_assert!(
                 w <= u8::MAX as usize,
@@ -297,7 +297,7 @@ impl Deserializable for TraceLayout {
     /// Returns an error of a valid [TraceLayout] struct could not be read from the specified
     /// `source`.
     fn read_from<R: ByteReader>(source: &mut R) -> Result<Self, DeserializationError> {
-        let main_width = source.read_u8()? as usize;
+        let main_width = source.read_u16()? as usize;
         if main_width == 0 {
             return Err(DeserializationError::InvalidValue(
                 "main trace segment width must be greater than zero".to_string(),
