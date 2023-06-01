@@ -145,6 +145,48 @@ fn get_root_of_unity() {
 // ------------------------------------------------------------------------------------------------
 
 #[test]
+fn bytes_as_elements() {
+    let bytes: Vec<u8> = vec![1, 0, 0];
+    let expected = BaseElement::new(1);
+    match unsafe { BaseElement::bytes_as_elements(&bytes) } {
+        Ok(value) => {
+            assert_eq!(1, value.len());
+            assert_eq!(expected, value[0])
+        }
+        Err(e) => panic!("{:?}", e),
+    }
+
+    let bytes: Vec<u8> = vec![1, 0, 0, 2, 0, 0, 3, 0, 0];
+    let expected = [
+        BaseElement::new(1),
+        BaseElement::new(2),
+        BaseElement::new(3),
+    ];
+    match unsafe { BaseElement::bytes_as_elements(&bytes) } {
+        Ok(value) => assert_eq!(expected, value),
+        Err(e) => panic!("{:?}", e),
+    }
+}
+
+#[test]
+fn elements_as_bytes() {
+    use utils::AsBytes;
+    let source = BaseElement::new(1);
+    let expected: Vec<u8> = vec![1, 0, 0];
+    let got = source.as_bytes();
+    assert_eq!(expected, got);
+
+    let source = vec![
+        BaseElement::new(1),
+        BaseElement::new(2),
+        BaseElement::new(3),
+    ];
+    let expected: Vec<u8> = vec![1, 0, 0, 2, 0, 0, 3, 0, 0];
+    let got = BaseElement::elements_as_bytes(&source);
+    assert_eq!(expected, got);
+}
+
+#[test]
 fn from_u128() {
     let v = u128::MAX;
     let e = BaseElement::from(v);

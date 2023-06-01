@@ -142,14 +142,13 @@ impl FieldElement for BaseElement {
         Self(self.0)
     }
 
-    // TODO We return a slice of length 4*len, whereas bytes_as_elements
-    // expects one of length 3*len. The signature of elements_as_bytes prevents
-    // us from allocating an array to pack the u32 into 3 bytes.
     fn elements_as_bytes(elements: &[Self]) -> &[u8] {
-        // TODO: take endianness into account.
-        let p = elements.as_ptr();
-        let len = elements.len() * 4;
-        unsafe { slice::from_raw_parts(p as *const u8, len) }
+        let mut out = vec![];
+        for e in elements {
+            out.extend(e.as_bytes());
+        }
+        let p = out.as_slice().as_ptr();
+        unsafe { slice::from_raw_parts(p as *const u8, out.len()) }
     }
 
     unsafe fn bytes_as_elements(bytes: &[u8]) -> Result<&[Self], DeserializationError> {
@@ -160,15 +159,16 @@ impl FieldElement for BaseElement {
             )));
         }
 
-        let p = bytes.as_ptr();
         let len = bytes.len() / Self::ELEMENT_BYTES;
-
-        if (p as usize) % mem::align_of::<u32>() != 0 {
-            return Err(DeserializationError::InvalidValue(
-                "slice memory alignment is not valid for this field element type".to_string(),
-            ));
+        let mut p = vec![];
+        let mut buf = [0; 4];
+        for s in bytes.chunks(Self::ELEMENT_BYTES) {
+            for (i, si) in s.into_iter().enumerate() {
+                buf[i] = *si
+            }
+            p.push(BaseElement(u32::from_le_bytes(buf)));
         }
-
+        let p = p.as_slice().as_ptr();
         Ok(slice::from_raw_parts(p as *const Self, len))
     }
 
@@ -533,8 +533,7 @@ impl<'a> TryFrom<&'a [u8]> for BaseElement {
 
 impl AsBytes for BaseElement {
     fn as_bytes(&self) -> &[u8] {
-        // TODO: take endianness into account
-        let self_ptr: *const BaseElement = self;
+        let self_ptr: *const u8 = self.as_int().to_le_bytes().as_ptr();
         unsafe { slice::from_raw_parts(self_ptr as *const u8, ELEMENT_BYTES) }
     }
 }
